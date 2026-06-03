@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: spend-smart-frontend
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REACT_APP_API_URL
+        value: https://your-backend-url.onrender.com/api/v1
+        sync: false
+    staticPublicPath: build
+    routes:
+      - path: /
+        destination: /index.html
+        type: rewrite
+      - path: /static/*
+        destination: /static/$1
+    headers:
+      - path: /static/*
+        headers:
+          - key: Cache-Control
+            value: public, max-age=31536000, immutable
+      - path: /index.html
+        headers:
+          - key: Cache-Control
+            value: public, max-age=0, must-revalidate

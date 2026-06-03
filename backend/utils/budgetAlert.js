@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import User from '../Models/user.model.js';
-import Expense from '../Models/expenses.models.js';
+import Expenses from '../Models/expenses.models.js';
 import { sendBudgetAlertEmail, sendBudgetExceededEmail } from './emails.js';
 
 // Runs at 8:00 AM on the 1st of every month
@@ -21,7 +21,7 @@ cron.schedule('0 8 1 * *', async () => {
         for (const user of users) {
 
             // STEP 4 — get their expenses for last month
-            const expenses = await Expense.find({
+            const expenses = await Expenses.find({
                 user: user._id,
                 date: { $gte: start, $lte: end }
             });

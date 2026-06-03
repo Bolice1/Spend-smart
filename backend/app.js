@@ -24,7 +24,7 @@ const allowedOrigins = [
     'http://127.0.0.1:5000',
     'http://localhost:3000',
     'https://chretien527.github.io',
-    'https://spend-smart-ten-sepia.vercel.app/'
+    'https://spend-smart-ten-sepia.vercel.app'
 ];
 
 app.use(cors({

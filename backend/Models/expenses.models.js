@@ -6,8 +6,8 @@ const expenseSchema = new mongoose.Schema({
     amount: { type: Number, required: true, min: 0 },
     category: {
         type: String,
-        enum: ['food','transport','airtime','rent','utilities',
-               'entertainment','health','education','clothing','shopping','savings','other'],
+        enum: ['food', 'transport', 'airtime', 'rent', 'utilities',
+            'entertainment', 'health', 'education', 'clothing', 'shopping', 'savings', 'other'],
         required: true
     },
     method: { type: String, default: 'Cash' },
