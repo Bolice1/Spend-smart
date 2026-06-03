@@ -24,6 +24,7 @@ const allowedOrigins = [
     'http://127.0.0.1:5000',
     'http://localhost:3000',
     'https://chretien527.github.io',
+    'https://spend-smart-ten-sepia.vercel.app/'
 ];
 
 app.use(cors({
@@ -43,7 +44,7 @@ app.use(cors({
 // Test route - placed right after CORS
 app.get('/test-cors', (req, res) => {
     res.json({ 
-        message: "CORS is working! ✅",
+        message: "CORS is working! ",
         origin: req.headers.origin || "No origin"
     });
 });
