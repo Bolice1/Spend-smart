@@ -85,6 +85,6 @@ if (frontendBuildPath) {
 app.use(errorMiddleware);
 
 app.listen(PORT, async () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server is up`);
     await connectToDatabase();
 });

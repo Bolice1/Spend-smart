@@ -30,13 +30,13 @@ const normalizeExpense = (expense) => ({
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { id: "food", label: "Food", emoji: "🍔", color: "#6C63FF" },
-  { id: "transport", label: "Transport", emoji: "🚌", color: "#3B82F6" },
-  { id: "airtime", label: "Airtime", emoji: "📱", color: "#8B5CF6" },
-  { id: "rent", label: "Rent", emoji: "🏠", color: "#EC4899" },
-  { id: "health", label: "Health", emoji: "💊", color: "#EF4444" },
-  { id: "shopping", label: "Shopping", emoji: "🛍️", color: "#F59E0B" },
-  { id: "other", label: "Other", emoji: "🎯", color: "#10B981" },
+  { id: "food", label: "Food", icon: "fa-utensils", color: "#6C63FF" },
+  { id: "transport", label: "Transport", icon: "fa-bus", color: "#3B82F6" },
+  { id: "airtime", label: "Airtime", icon: "fa-mobile-screen", color: "#8B5CF6" },
+  { id: "rent", label: "Rent", icon: "fa-house", color: "#EC4899" },
+  { id: "health", label: "Health", icon: "fa-pills", color: "#EF4444" },
+  { id: "shopping", label: "Shopping", icon: "fa-bag-shopping", color: "#F59E0B" },
+  { id: "other", label: "Other", icon: "fa-bullseye", color: "#10B981" },
 ];
 
 const PAYMENT_METHODS = ["Cash", "Mobile Money", "Bank Transfer", "Card"];
@@ -44,19 +44,20 @@ const PAYMENT_METHODS = ["Cash", "Mobile Money", "Bank Transfer", "Card"];
 const CURRENCIES = ["RWF", "USD", "EUR", "KES", "UGX"];
 
 const NAV_ITEMS = [
-  { id: "dashboard", label: "Dashboard", icon: "⊞" },
-  { id: "log", label: "Log Expense", icon: "+" },
-  { id: "budgets", label: "Budgets", icon: "◎" },
-  { id: "analytics", label: "Analytics", icon: "↗" },
+  { id: "dashboard", label: "Dashboard", icon: "fa-th-large" },
+  { id: "log", label: "Log Expense", icon: "fa-plus" },
+  { id: "budgets", label: "Budgets", icon: "fa-wallet" },
+  { id: "analytics", label: "Analytics", icon: "fa-chart-line" },
 ];
 
 const fmtAmount = (n, currency = "RWF") => `${currency} ${Number(n).toLocaleString()}`;
+const Icon = ({ name, style = {} }) => <i className={`fa-solid ${name}`} style={{ fontSize: 16, lineHeight: 1, ...style }} aria-hidden="true" />;
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-const startOfDay = (d) => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
-const startOfWeek = () => { const d = new Date(); d.setDate(d.getDate() - d.getDay()); d.setHours(0,0,0,0); return d; };
-const startOfMonth = () => { const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d; };
+const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+const startOfWeek = () => { const d = new Date(); d.setDate(d.getDate() - d.getDay()); d.setHours(0, 0, 0, 0); return d; };
+const startOfMonth = () => { const d = new Date(); d.setDate(1); d.setHours(0, 0, 0, 0); return d; };
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const S = {
@@ -118,7 +119,7 @@ function useStorage(key, initial) {
   const set = useCallback((v) => {
     setVal((prev) => {
       const next = typeof v === "function" ? v(prev) : v;
-      try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
+      try { localStorage.setItem(key, JSON.stringify(next)); } catch { }
       return next;
     });
   }, [key]);
@@ -155,7 +156,7 @@ function Dashboard({ expenses, budgets, currency, navigate }) {
 
   // Last 7 days chart data
   const chartData = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(); d.setDate(d.getDate() - (6 - i)); d.setHours(0,0,0,0);
+    const d = new Date(); d.setDate(d.getDate() - (6 - i)); d.setHours(0, 0, 0, 0);
     const next = new Date(d); next.setDate(next.getDate() + 1);
     const amt = expenses.filter(e => { const ed = new Date(e.date); return ed >= d && ed < next; }).reduce((s, e) => s + e.amount, 0);
     return { day: d.toLocaleDateString("en", { weekday: "short" }), amount: amt };
@@ -176,25 +177,25 @@ function Dashboard({ expenses, budgets, currency, navigate }) {
     <div>
       <div style={S.statGrid}>
         <div style={S.statCard("linear-gradient(135deg,#6C63FF,#a78bfa)")}>
-          <span style={S.statEmoji}>💸</span>
+          <span style={S.statEmoji}><Icon name="fa-coins" /></span>
           <div style={S.statLabel(true)}>Total Spent</div>
           <div style={S.statValue(true)}>{fmtAmount(total, currency)}</div>
           <p style={S.statSub(true)}>{expenses.length} transactions</p>
         </div>
         <div style={S.statCard()}>
-          <span style={S.statEmoji}>📅</span>
+          <span style={S.statEmoji}><Icon name="fa-calendar-day" /></span>
           <div style={S.statLabel()}>Today</div>
           <div style={S.statValue()}>{fmtAmount(todayTotal, currency)}</div>
           <p style={S.statSub()}>{expenses.filter(e => new Date(e.date) >= todayStart).length} entries</p>
         </div>
         <div style={S.statCard()}>
-          <span style={S.statEmoji}>📆</span>
+          <span style={S.statEmoji}><Icon name="fa-calendar-week" /></span>
           <div style={S.statLabel()}>This Week</div>
           <div style={S.statValue()}>{fmtAmount(weekTotal, currency)}</div>
           <p style={S.statSub()}>{expenses.filter(e => new Date(e.date) >= weekStart).length} entries</p>
         </div>
         <div style={S.statCard()}>
-          <span style={S.statEmoji}>🗓️</span>
+          <span style={S.statEmoji}><Icon name="fa-calendar-days" /></span>
           <div style={S.statLabel()}>This Month</div>
           <div style={S.statValue()}>{fmtAmount(monthTotal, currency)}</div>
           <p style={S.statSub()}>{expenses.filter(e => new Date(e.date) >= monthStart).length} entries</p>
@@ -207,7 +208,7 @@ function Dashboard({ expenses, budgets, currency, navigate }) {
             <div style={S.panelTitle}>Spending Over Time</div>
           </div>
           {expenses.length === 0 ? (
-            <div style={S.empty}><div style={S.emptyEmoji}>📊</div><p>Log expenses to see trends</p></div>
+            <div style={S.empty}><div style={S.emptyEmoji}><Icon name="fa-chart-area" /></div><p>Log expenses to see trends</p></div>
           ) : (
             <ResponsiveContainer width="100%" height={180}>
               <LineChart data={chartData}>
@@ -222,7 +223,7 @@ function Dashboard({ expenses, budgets, currency, navigate }) {
         <div style={{ ...S.panel, flex: 1 }}>
           <div style={S.panelTitle}>By Category</div>
           {catTotals.length === 0 ? (
-            <div style={S.empty}><div style={{ fontSize: 32, marginBottom: 8 }}>🍩</div><p style={{ fontSize: 12 }}>No data yet</p></div>
+            <div style={S.empty}><div style={{ fontSize: 32, marginBottom: 8 }}><Icon name="fa-ban" style={{ fontSize: 32 }} /></div><p style={{ fontSize: 12 }}>No data yet</p></div>
           ) : (
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
@@ -245,7 +246,7 @@ function Dashboard({ expenses, budgets, currency, navigate }) {
             {budgetItems.map(c => (
               <div key={c.id}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                  <span style={{ fontSize: 13 }}>{c.emoji} {c.label}</span>
+                  <span style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name={c.icon} style={{ fontSize: 14, minWidth: 18 }} />{c.label}</span>
                   <span style={{ fontSize: 12, color: c.pct > 90 ? "#EF4444" : "#9999b3" }}>{fmtAmount(c.spent, currency)} / {fmtAmount(c.budget, currency)}</span>
                 </div>
                 <ProgressBar pct={c.pct} color={c.pct > 90 ? "#EF4444" : c.pct > 70 ? "#F59E0B" : "#6C63FF"} />
@@ -268,13 +269,13 @@ function Dashboard({ expenses, budgets, currency, navigate }) {
           <span style={{ fontSize: 13, color: "#6C63FF", cursor: "pointer" }} onClick={() => navigate("log")}>See all →</span>
         </div>
         {recent.length === 0 ? (
-          <div style={S.empty}><div style={S.emptyEmoji}>💰</div><p>No transactions yet</p></div>
+          <div style={S.empty}><div style={S.emptyEmoji}><Icon name="fa-wallet" /></div><p>No transactions yet</p></div>
         ) : (
           recent.map(e => {
             const cat = CATEGORIES.find(c => c.id === e.category) || CATEGORIES[6];
             return (
               <div key={e.id} style={S.txRow}>
-                <div style={S.txIcon(cat.color)}>{cat.emoji}</div>
+                <div style={S.txIcon(cat.color)}><Icon name={cat.icon} /></div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, fontWeight: 500 }}>{e.description || cat.label}</div>
                   <div style={{ fontSize: 12, color: "#9999b3" }}>{new Date(e.date).toLocaleDateString("en", { month: "short", day: "numeric" })} · {e.method}</div>
@@ -350,13 +351,13 @@ function LogExpense({ expenses, setExpenses, currency, token }) {
     <div style={S.row}>
       {/* Form */}
       <div style={{ ...S.panel, width: 320, flexShrink: 0 }}>
-        <div style={{ ...S.panelTitle, marginBottom: 20 }}>+ New Expense</div>
+        <div style={{ ...S.panelTitle, marginBottom: 20 }}>New Expense</div>
         <div style={{ marginBottom: 14 }}>
           <div style={S.label}>Category</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {CATEGORIES.map(c => (
               <div key={c.id} style={S.chip(cat === c.id)} onClick={() => setCat(c.id)}>
-                <span style={{ fontSize: 14 }}>{c.emoji}</span> {c.label}
+                <Icon name={c.icon} style={{ fontSize: 14, width: 18, minWidth: 18, textAlign: "center" }} /> {c.label}
               </div>
             ))}
           </div>
@@ -386,7 +387,7 @@ function LogExpense({ expenses, setExpenses, currency, token }) {
           <textarea style={{ ...S.input, resize: "vertical", minHeight: 70 }} placeholder="Any extra details..." value={note} onChange={e => setNote(e.target.value)} />
         </div>
         <button style={S.btn("primary")} onClick={submit}>
-          {success ? "✓ Logged!" : "+ Log Expense"}
+          {success ? "✓ Logged!" : "Log Expense"}
         </button>
       </div>
 
@@ -400,7 +401,7 @@ function LogExpense({ expenses, setExpenses, currency, token }) {
           ))}
           <select style={{ ...S.select, width: "auto", marginLeft: "auto" }} value={filterCat} onChange={e => setFilterCat(e.target.value)}>
             <option value="all">All Categories</option>
-            {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.emoji} {c.label}</option>)}
+            {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
           </select>
           <select style={{ ...S.select, width: "auto" }} value={sort} onChange={e => setSort(e.target.value)}>
             <option value="newest">Newest</option>
@@ -408,13 +409,13 @@ function LogExpense({ expenses, setExpenses, currency, token }) {
           </select>
         </div>
         {filtered.length === 0 ? (
-          <div style={S.empty}><div style={S.emptyEmoji}>💰</div><p>No expenses found.<br />Start logging your spending!</p></div>
+          <div style={S.empty}><div style={S.emptyEmoji}><Icon name="fa-wallet" /></div><p>No expenses found.<br />Start logging your spending!</p></div>
         ) : (
           filtered.map(e => {
             const cat2 = CATEGORIES.find(c => c.id === e.category) || CATEGORIES[6];
             return (
               <div key={e.id} style={S.txRow}>
-                <div style={S.txIcon(cat2.color)}>{cat2.emoji}</div>
+                <div style={S.txIcon(cat2.color)}><Icon name={cat2.icon} /></div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, fontWeight: 500 }}>{e.description || cat2.label}</div>
                   <div style={{ fontSize: 12, color: "#9999b3", marginTop: 2 }}>
@@ -425,7 +426,7 @@ function LogExpense({ expenses, setExpenses, currency, token }) {
                 </div>
                 <span style={S.badge(cat2.color)}>{cat2.label}</span>
                 <div style={{ fontWeight: 700, fontSize: 14, marginLeft: 12 }}>{fmtAmount(e.amount, currency)}</div>
-                <div style={{ marginLeft: 10, color: "#ccc", cursor: "pointer", fontSize: 18, lineHeight: 1 }} onClick={() => remove(e.id)} title="Delete">×</div>
+                <div style={{ marginLeft: 10, color: "#ccc", cursor: "pointer", fontSize: 18, lineHeight: 1 }} onClick={() => remove(e.id)} title="Delete"><Icon name="fa-xmark" style={{ fontSize: 18 }} /></div>
               </div>
             );
           })
@@ -458,10 +459,10 @@ function Budgets({ budgets, setBudgets, expenses, currency }) {
   return (
     <div style={S.row}>
       <div style={{ ...S.panel, width: 500, flexShrink: 0 }}>
-        <div style={S.panelTitle}>🎯 Set Monthly Budgets</div>
+        <div style={S.panelTitle}>Set Monthly Budgets</div>
         {CATEGORIES.map(c => (
           <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "10px 0", borderBottom: "1px solid #f0f0f8" }}>
-            <span style={{ fontSize: 20 }}>{c.emoji}</span>
+            <span style={{ fontSize: 20 }}><Icon name={c.icon} /></span>
             <span style={{ flex: 1, fontSize: 14, fontWeight: 500 }}>{c.label}</span>
             <input
               style={{ ...S.input, width: 120, textAlign: "right" }}
@@ -479,14 +480,14 @@ function Budgets({ budgets, setBudgets, expenses, currency }) {
       </div>
 
       <div style={{ ...S.panel, flex: 1 }}>
-        <div style={S.panelTitle}>📊 Budget Status</div>
+        <div style={S.panelTitle}>Budget Status</div>
         {active.length === 0 ? (
           <p style={{ color: "#9999b3", fontSize: 14 }}>Set budgets on the left to track them here.</p>
         ) : (
           active.map(c => (
             <div key={c.id} style={{ marginBottom: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 500 }}>{c.emoji} {c.label}</span>
+                <span style={{ fontSize: 14, fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name={c.icon} style={{ fontSize: 14, minWidth: 18 }} />{c.label}</span>
                 <span style={{ fontSize: 12, color: c.pct > 90 ? "#EF4444" : "#9999b3" }}>
                   {fmtAmount(c.spent, currency)} / {fmtAmount(c.budget, currency)}
                 </span>
@@ -530,7 +531,7 @@ function Analytics({ expenses, currency }) {
     <div>
       {/* Monthly trend table */}
       <div style={{ ...S.panel, marginBottom: 20 }}>
-        <div style={S.panelTitle}>📅 Monthly Spending Trend</div>
+        <div style={S.panelTitle}>Monthly Spending Trend</div>
         {months.length === 0 ? (
           <p style={{ color: "#9999b3", fontSize: 14 }}>No data yet.</p>
         ) : (
@@ -559,7 +560,7 @@ function Analytics({ expenses, currency }) {
                       {diff === null ? "—" : `${diff > 0 ? "+" : ""}${diff.toFixed(1)}%`}
                     </td>
                     <td style={{ padding: "10px 0" }}>{entries}</td>
-                    <td style={{ padding: "10px 0" }}>{topCat?.amt > 0 ? `${topCat.emoji} ${topCat.label}` : "—"}</td>
+                    <td style={{ padding: "10px 0" }}>{topCat?.amt > 0 ? <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name={topCat.icon} style={{ fontSize: 12, minWidth: 16 }} />{topCat.label}</span> : "—"}</td>
                   </tr>
                 );
               })}
@@ -571,20 +572,20 @@ function Analytics({ expenses, currency }) {
       <div style={S.row}>
         {/* Smart insights */}
         <div style={{ ...S.panel, flex: 1 }}>
-          <div style={S.panelTitle}>💡 Smart Insights</div>
+          <div style={S.panelTitle}>Smart Insights</div>
           {expenses.length === 0 ? (
             <p style={{ color: "#9999b3", fontSize: 14 }}>No data yet.</p>
           ) : (
             <>
               <div style={{ display: "flex", gap: 14, padding: "12px 0", borderBottom: "1px solid #f0f0f8", alignItems: "center" }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: "#f0efff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📊</div>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "#f0efff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}><Icon name="fa-chart-simple" /></div>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 14 }}>Daily average: {fmtAmount(Math.round(avgDays), currency)}</div>
                   <div style={{ fontSize: 12, color: "#9999b3" }}>Based on active spending days</div>
                 </div>
               </div>
               <div style={{ display: "flex", gap: 14, padding: "12px 0", borderBottom: "1px solid #f0f0f8", alignItems: "center" }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: "#f0fff8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📝</div>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "#f0fff8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}><Icon name="fa-file-lines" /></div>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 14 }}>{expenses.length} total entries logged</div>
                   <div style={{ fontSize: 12, color: "#9999b3" }}>Great habit — tracking is the first step to saving!</div>
@@ -592,7 +593,7 @@ function Analytics({ expenses, currency }) {
               </div>
               {catTotals[0] && (
                 <div style={{ display: "flex", gap: 14, padding: "12px 0", alignItems: "center" }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "#fff8f0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{catTotals[0].emoji}</div>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "#fff8f0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}><Icon name={catTotals[0].icon} /></div>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 14 }}>Top spend: {catTotals[0].label}</div>
                     <div style={{ fontSize: 12, color: "#9999b3" }}>{fmtAmount(catTotals[0].total, currency)} ({((catTotals[0].total / totalAll) * 100).toFixed(1)}% of all spending)</div>
@@ -605,14 +606,14 @@ function Analytics({ expenses, currency }) {
 
         {/* By Category */}
         <div style={{ ...S.panel, flex: 1 }}>
-          <div style={S.panelTitle}>🏆 All-time by Category</div>
+          <div style={S.panelTitle}>All-time by Category</div>
           {catTotals.length === 0 ? (
             <p style={{ color: "#9999b3", fontSize: 14 }}>No data yet.</p>
           ) : (
             catTotals.map(c => (
               <div key={c.id} style={{ marginBottom: 14 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                  <span style={{ fontSize: 13, fontWeight: 500 }}>{c.emoji} {c.label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name={c.icon} style={{ fontSize: 13, minWidth: 16 }} />{c.label}</span>
                   <span style={{ fontSize: 13, color: "#9999b3" }}>{fmtAmount(c.total, currency)}</span>
                 </div>
                 <ProgressBar pct={(c.total / catTotals[0].total) * 100} color={c.color} />
@@ -651,7 +652,7 @@ function Settings({ displayName, setDisplayName, currency, setCurrency, darkMode
     <div style={S.row}>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
         <div style={S.panel}>
-          <div style={S.panelTitle}>👤 Profile</div>
+          <div style={S.panelTitle}>Profile</div>
           <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px", background: "#f8f8fc", borderRadius: 12, marginBottom: 20 }}>
             <div style={{ ...S.avatar, width: 44, height: 44, fontSize: 16 }}>{name[0]?.toUpperCase() || "U"}</div>
             <div>
@@ -665,7 +666,7 @@ function Settings({ displayName, setDisplayName, currency, setCurrency, darkMode
         </div>
 
         <div style={S.panel}>
-          <div style={S.panelTitle}>💾 Data</div>
+          <div style={S.panelTitle}>Data</div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f0f0f8" }}>
             <div><div style={{ fontWeight: 500, fontSize: 14 }}>Export CSV</div><div style={{ fontSize: 12, color: "#9999b3" }}>Download all expenses</div></div>
             <button style={{ ...S.btn("secondary"), width: "auto", padding: "8px 20px", background: "#6C63FF", color: "#fff", border: "none", borderRadius: 10 }} onClick={exportCSV}>Export</button>
@@ -685,7 +686,7 @@ function Settings({ displayName, setDisplayName, currency, setCurrency, darkMode
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
         <div style={S.panel}>
-          <div style={S.panelTitle}>⚙️ Preferences</div>
+          <div style={S.panelTitle}>Preferences</div>
           {[
             { label: "Dark Mode", sub: "Toggle dark/light theme (coming soon)", val: darkMode, set: setDarkMode },
             { label: "Budget Alerts", sub: "Warn when near limit", val: budgetAlerts, set: setBudgetAlerts },
@@ -710,7 +711,7 @@ function Settings({ displayName, setDisplayName, currency, setCurrency, darkMode
         </div>
 
         <div style={S.panel}>
-          <div style={S.panelTitle}>ℹ️ About</div>
+          <div style={S.panelTitle}>About</div>
           {[["Version", "v2.0.0"], ["Built with", "React + Recharts"], ["Data stored", "Locally (your browser)"]].map(([k, v]) => (
             <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #f0f0f8" }}>
               <span style={{ fontSize: 14, color: "#9999b3" }}>{k}</span>
@@ -756,7 +757,7 @@ function AuthScreen({ onAuth }) {
   return (
     <div style={{ ...S.app, alignItems: "center", justifyContent: "center", padding: 24 }}>
       <form onSubmit={submit} style={{ ...S.panel, width: "100%", maxWidth: 420 }}>
-        <div style={{ ...S.logoIcon, marginBottom: 14 }}>ðŸ’¸</div>
+        <div style={{ ...S.logoIcon, marginBottom: 14 }}><Icon name="fa-coins" style={{ fontSize: 20 }} /></div>
         <h1 style={{ margin: "0 0 6px", fontSize: 24 }}>SpendSmart</h1>
         <p style={{ margin: "0 0 24px", color: "#9999b3", fontSize: 14 }}>
           {mode === "signin" ? "Sign in to sync your expenses." : "Create an account to start tracking."}
@@ -835,7 +836,7 @@ export default function App() {
       {/* Sidebar */}
       <div style={S.sidebar}>
         <div style={S.logo}>
-          <div style={S.logoIcon}>💸</div>
+          <div style={S.logoIcon}><Icon name="fa-coins" /></div>
           <p style={S.logoName}>SpendSmart</p>
           <p style={S.logoSub}>money clarity, daily</p>
         </div>
@@ -848,7 +849,7 @@ export default function App() {
         <div style={S.navBottom}>
           <div style={S.navSection}>Account</div>
           <div style={S.navItem(page === "settings")} onClick={() => setPage("settings")}>
-            <span style={{ fontSize: 16 }}>⚙</span> Settings
+            <span style={{ fontSize: 16 }}><Icon name="fa-cog" style={{ fontSize: 16 }} /></span> Settings
           </div>
         </div>
         <div style={{ padding: "12px 20px", borderTop: "1px solid #ffffff18", fontSize: 12, color: "#ffffff44", display: "flex", justifyContent: "space-between" }}>
@@ -864,7 +865,7 @@ export default function App() {
             <span style={S.pageSubtitle}>{pageSub[page]}</span>
           </div>
           <div style={S.topActions}>
-            <div style={S.searchBox}>🔍 Search expenses...</div>
+            <div style={S.searchBox}><Icon name="fa-magnifying-glass" style={{ fontSize: 14 }} /> Search expenses...</div>
             <div style={{ width: 34, height: 34, borderRadius: 8, border: "1px solid #e0e0ee", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 18 }} onClick={() => setPage("log")}>+</div>
             <div style={S.avatar}>{displayName[0]?.toUpperCase() || "U"}</div>
             <button style={{ ...S.btn("secondary"), width: "auto", padding: "8px 14px", border: "1.5px solid #e0e0ee" }} onClick={signOut}>Sign Out</button>
